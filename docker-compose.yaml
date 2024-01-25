@@ -1,0 +1,43 @@
+services:
+  db:
+    # We use a mariadb image which supports both amd64 & arm64 architecture
+    image: mariadb:jammy
+    # If you really want to use MySQL, uncomment the following line
+    #image: mysql:8.0.27
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - maria_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=1234
+    expose:
+      - 3306
+    networks:
+      - lan
+  wordpress:
+    image: wordpress:latest
+    volumes:
+      - wp_data:/var/www/html
+    ports:
+      - 80:80
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=1234
+      - WORDPRESS_DB_NAME=wordpress
+    networks:
+      - wan
+      - lan
+    links:
+      - db
+volumes:
+  maria_data:
+  wp_data:
+networks:
+  # The presence of these objects is sufficient to define them
+  lan: {}
+  wan: {}
